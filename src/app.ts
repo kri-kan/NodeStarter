@@ -2,21 +2,13 @@ import express from "express";
 import session from "express-session";
 import path from "path"; //node module
 import redis from "redis";
-// import RedisStore from "connect-redis";
+import dotenv from "dotenv";
 
-// var rediStore = RedisStore(session);
-// var redisClient = redis.createClient();
-// new redis.RedisClient({
-//   host: '127.0.0.1',
-//   port: 6379  
-// })
-// redis.RedisClient = {}
-// var redisClient = redis.createClient(6379,'127.0.0.1');
-// var redisStoreOptions : Partial<RedisStore.RedisStoreOptions> = {
-//   client: redisClient,
-//   host: '127.0.0.1',
-//   port: 6379
-// }
+// dotenv.config();
+dotenv.config({path : ".env"});
+
+// console.log(process.env.Test_Env_Variable);
+
 
 var client = redis.createClient(6379, '127.0.0.1');
 
@@ -51,6 +43,7 @@ app.get("/", function(req,res){
     req.session.views++;
     // res.setHeader('Content-Type', 'text/html');
     res.write('<p>views: ' + req.session.views + '</p>');
+    res.write('<p>Test_Env_Variable : ' + process.env.Test_Env_Variable + '</p>')
     res.write('<p>expires in: ' + (req.session.cookie.maxAge / 1000) + 's</p>')
     res.end()
   } else {
