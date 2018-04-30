@@ -3,35 +3,21 @@ import session from "express-session";
 import path from "path"; //node module
 import redis from "redis";
 import dotenv from "dotenv";
-
-// dotenv.config();
-dotenv.config({path : ".env"});
-
-// console.log(process.env.Test_Env_Variable);
+import { SESSION_SECRET } from "./config/secret";
 
 
-var client = redis.createClient(6379, '127.0.0.1');
-
-var sessionConfigObj = {
-
-  secret:'test',
-  cookie :{
-    secure:false
-  }
-};
+var client = redis.createClient(Number(process.env.SESSION_STORE_PORT), process.env.SESSION_STORE_HOST);
 
 var app = express();
 
-// app.use(session(sessionConfigObj))
-
 app.use(session({
-  secret: 'a4f8071f-c873-4447-8ee2',
+  secret: SESSION_SECRET,
   cookie: { maxAge: 2628000000 },
   store: new (require('express-sessions'))({
       storage: 'redis',
       instance: client, // optional 
-      host: 'localhost', // optional 
-      port: 6379, // optional 
+      host: process.env.SESSION_STORE_HOST, // optional 
+      port: process.env.SESSION_STORE_PORT, // optional 
       collection: 'sessions', // optional 
       expire: 86400 // optional 
   })
@@ -53,7 +39,7 @@ app.get("/", function(req,res){
     // res.send(req.sessionID);
 });
 
-app.set("port",3000);
+app.set("port",process.env.APP_PORT);
 console.log(__dirname);
 app.set("views", path.join(__dirname, "../views"));
 // app.set("view engine", "pug");
