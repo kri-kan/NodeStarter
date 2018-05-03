@@ -4,12 +4,12 @@ import path from "path"; //node module
 import redis from "redis";
 import dotenv from "dotenv";
 import { SESSION_SECRET } from "./config/secret";
-
+import jwt from "jsonwebtoken"
 
 var client = redis.createClient(Number(process.env.SESSION_STORE_PORT), process.env.SESSION_STORE_HOST);
 
 var app = express();
-
+const x = jwt;
 app.use(session({
   secret: SESSION_SECRET,
   cookie: { maxAge: 2628000000 },
@@ -39,6 +39,24 @@ app.get("/", function(req,res){
     // res.send(req.sessionID);
 });
 
+app.post("/login", function(req,res){
+  //mock user
+  const user = {
+    id:1,
+    username : "krishna",
+    email : "kriishnakanth@gmail.com"
+  }
+
+  jwt.sign({User:user},'secretKey',{},(err,token) =>{
+    res.json({token:token})
+  })
+});
+
+app.post("/api/posts",verifyToken,(req,res)=>{
+  res.json({message:"post created.."});
+  // res.end();
+})
+
 app.set("port",process.env.APP_PORT);
 console.log(__dirname);
 app.set("views", path.join(__dirname, "../views"));
@@ -53,4 +71,14 @@ var server = app.listen(app.get("port")
 //     console.log("  Press CTRL-C to stop\n");
 //   }
 );
+
+function verifyToken(req:any,res:any,next:any){
+  const bearerToken = req.get("authorization");
+  if(bearerToken !== undefined){
+    next();
+  }else{
+    res.sendStatus(401);
+  }
+
+}
 export default server;
