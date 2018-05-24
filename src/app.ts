@@ -53,7 +53,10 @@ app.post("/login", function(req,res){
 });
 
 app.post("/api/posts",verifyToken,(req,res)=>{
-  res.json({message:"post created.."});
+  jwt.verify(req.token,'secretKey',(err:any,decoded:any)=>{
+    res.send(decoded.User);
+  });
+  // res.json({message:"post created.."});
   // res.end();
 })
 
@@ -73,8 +76,11 @@ var server = app.listen(app.get("port")
 );
 
 function verifyToken(req:any,res:any,next:any){
-  const bearerToken = req.get("authorization");
-  if(bearerToken !== undefined){
+  const bearerheader = req.get("authorization");
+  if(bearerheader !== undefined){
+    const bearer = bearerheader.split(' ');
+    const bearerToken = bearer[1];
+    req.token = bearerToken;
     next();
   }else{
     res.sendStatus(401);
